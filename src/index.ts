@@ -5,6 +5,7 @@
 
 // --- Conversion (primary API) ---
 export { toGawainJobInput, validateShopifyProduct } from './platform/shopify/convert.js';
+export { fetchShopifyProduct, type FetchShopifyProductOptions } from './platform/shopify/fetch.js';
 export type { ShopifyProduct, ConvertOptions } from './platform/shopify/types.js';
 
 // --- Gawain client ---

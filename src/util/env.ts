@@ -5,6 +5,7 @@
 
 export interface EnvConfig {
   gawainApiBase: string;
+  /** Optional — free preview works without a key; commercial requires one. */
   gawainApiKey: string;
   gawainAppId: string;
   kinosukeUpgradeUrl: string;
@@ -52,7 +53,7 @@ function getOptionalNumber(name: string, defaultValue: number): number {
 export function loadEnvConfig(): EnvConfig {
   return {
     gawainApiBase: getRequired('GAWAIN_API_BASE'),
-    gawainApiKey: getRequired('GAWAIN_API_KEY'),
+    gawainApiKey: getOptional('GAWAIN_API_KEY', ''),
     gawainAppId: getOptional('GAWAIN_APP_ID', ''),
     kinosukeUpgradeUrl: getOptional('KINOSUKE_UPGRADE_URL', 'https://kinosuke.example.com/upgrade'),
     pollIntervalMs: getOptionalNumber('GAWAIN_POLL_INTERVAL_MS', DEFAULT_POLL_INTERVAL_MS),

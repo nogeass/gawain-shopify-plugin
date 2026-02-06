@@ -20,7 +20,8 @@ const DEFAULT_TIMEOUT_MS = 30000;
  */
 export interface GawainClientConfig {
   apiBase: string;
-  apiKey: string;
+  /** API key. Optional for free preview; required for commercial usage. */
+  apiKey?: string;
   appId?: string;
   timeoutMs?: number;
 }
@@ -31,7 +32,7 @@ export interface GawainClientConfig {
 export function createConfigFromEnv(env: EnvConfig): GawainClientConfig {
   return {
     apiBase: env.gawainApiBase,
-    apiKey: env.gawainApiKey,
+    apiKey: env.gawainApiKey || undefined,
     appId: env.gawainAppId || undefined,
     timeoutMs: DEFAULT_TIMEOUT_MS,
   };
@@ -65,8 +66,11 @@ export class GawainClient {
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.config.apiKey}`,
       };
+
+      if (this.config.apiKey) {
+        headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+      }
 
       if (this.config.appId) {
         headers['X-App-Id'] = this.config.appId;

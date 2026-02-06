@@ -4,7 +4,7 @@
  *
  * Endpoints:
  *   POST /convert              — Shopify product JSON → GawainJobInput (stateless)
- *   POST /demo/create-preview  — Create a Gawain job (requires GAWAIN_API_KEY in env)
+ *   POST /demo/create-preview  — Create a Gawain job (free preview without API key; commercial requires GAWAIN_API_KEY)
  *
  * This server does NOT handle Shopify tokens or webhooks.
  * Usage: npm run serve
