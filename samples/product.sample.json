@@ -1,0 +1,53 @@
+{
+  "id": 1234567890,
+  "title": "Premium Wireless Headphones",
+  "body_html": "<p>Experience crystal-clear sound with our premium wireless headphones.</p><p>Features:</p><ul><li>40-hour battery life</li><li>Active noise cancellation</li><li>Comfortable over-ear design</li></ul>",
+  "vendor": "AudioTech",
+  "product_type": "Electronics",
+  "handle": "premium-wireless-headphones",
+  "status": "active",
+  "tags": "headphones, wireless, premium, noise-cancelling",
+  "images": [
+    {
+      "id": 1001,
+      "src": "https://example.com/images/headphones-front.jpg",
+      "alt": "Premium Wireless Headphones - Front View",
+      "position": 1
+    },
+    {
+      "id": 1002,
+      "src": "https://example.com/images/headphones-side.jpg",
+      "alt": "Premium Wireless Headphones - Side View",
+      "position": 2
+    },
+    {
+      "id": 1003,
+      "src": "https://example.com/images/headphones-case.jpg",
+      "alt": "Premium Wireless Headphones - With Case",
+      "position": 3
+    }
+  ],
+  "variants": [
+    {
+      "id": 2001,
+      "title": "Black",
+      "price": "29800",
+      "sku": "HEADPHONES-BLK",
+      "inventory_quantity": 50
+    },
+    {
+      "id": 2002,
+      "title": "White",
+      "price": "29800",
+      "sku": "HEADPHONES-WHT",
+      "inventory_quantity": 30
+    },
+    {
+      "id": 2003,
+      "title": "Navy Blue",
+      "price": "31800",
+      "sku": "HEADPHONES-NVY",
+      "inventory_quantity": 20
+    }
+  ]
+}
