@@ -1,12 +1,17 @@
 /**
  * gawain-shopify-plugin
- * Shopify plugin for Gawain video generation API
+ * SDK / reference implementation for Shopify → Gawain video generation
  */
 
-// Re-export main modules
+// --- Conversion (primary API) ---
+export { toGawainJobInput, validateShopifyProduct } from './platform/shopify/convert.js';
+export type { ShopifyProduct, ConvertOptions } from './platform/shopify/types.js';
+
+// --- Gawain client ---
 export { GawainClient, createConfigFromEnv, type GawainClientConfig } from './gawain/client.js';
 export {
   type ProductInput,
+  type GawainJobInput,
   type CreateJobRequest,
   type CreateJobResponse,
   type GetJobResponse,
@@ -14,6 +19,7 @@ export {
   GawainApiError,
 } from './gawain/types.js';
 
+// --- Install ID (convenience for local/demo use) ---
 export {
   getOrCreateInstallId,
   generateInstallId,
@@ -22,12 +28,9 @@ export {
   buildUpgradeUrl,
 } from './install/install_id.js';
 
-export {
-  convertShopifyProduct,
-  validateShopifyProduct,
-  type ShopifyProduct,
-  type ShopifyPriceContext,
-} from './platform/shopify_adapter.js';
-
+// --- Utilities ---
 export { loadEnvConfig, maskSecret, type EnvConfig } from './util/env.js';
 export { withRetry, sleep, isRetryableError, type RetryOptions } from './util/retry.js';
+
+// --- Deprecated re-exports (will be removed in next major) ---
+export { convertShopifyProduct, type ShopifyPriceContext } from './platform/shopify_adapter.js';

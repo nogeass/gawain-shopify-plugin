@@ -1,13 +1,20 @@
 # gawain-shopify-plugin
 
-Shopify plugin for Gawain video generation API - reference implementation.
+Shopify plugin for Gawain video generation API - SDK / reference implementation.
+
+> **This repo is an SDK / reference implementation.**
+> Production webhook handling and Shopify writeback must live in your own server.
+> This library provides conversion functions and an API client only.
+>
+> **Do NOT commit `.env` files or API tokens to version control.**
 
 ## Overview
 
 This plugin enables Shopify merchants to generate product videos using the Gawain API. It provides:
 
+- **Conversion API**: Pure-function conversion from Shopify product JSON to Gawain job input (`toGawainJobInput`)
+- **Gawain client**: `createJob` / `getJob` / `waitJob` for the Gawain video generation API
 - **Anonymous previews**: Generate video previews without login using `install_id`
-- **Shopify integration**: Convert Shopify product data to Gawain format
 - **Commercial upgrade path**: Easy upgrade to commercial usage via Kinosuke
 
 ## Quick Start
@@ -49,6 +56,74 @@ make demo
 docker-compose run --rm app
 ```
 
+## Conversion API
+
+### Input (Shopify Product JSON)
+
+```json
+{
+  "id": 1234567890,
+  "title": "Premium Wireless Headphones",
+  "body_html": "<p>Crystal-clear sound with noise cancellation.</p>",
+  "images": [
+    { "id": 1001, "src": "https://example.com/front.jpg", "position": 1 },
+    { "id": 1002, "src": "https://example.com/side.jpg", "position": 2 }
+  ],
+  "variants": [
+    { "id": 2001, "title": "Black", "price": "29800" }
+  ]
+}
+```
+
+### Usage
+
+```typescript
+import { toGawainJobInput, GawainClient } from 'gawain-shopify-plugin';
+
+// Convert Shopify product to Gawain format
+const jobInput = toGawainJobInput(shopifyProduct, {
+  currency: 'JPY',
+  templateText: 'NEW ARRIVAL',
+  maxImages: 2,
+});
+
+// Create a Gawain client and submit a job
+const client = new GawainClient({ apiBase: '...', apiKey: '...' });
+const { jobId } = await client.createJob(installId, jobInput);
+const result = await client.waitJob(jobId, { timeoutMs: 120_000 });
+console.log(result.previewUrl);
+```
+
+### Output (GawainJobInput)
+
+```json
+{
+  "id": "1234567890",
+  "title": "Premium Wireless Headphones",
+  "description": "Crystal-clear sound with noise cancellation.",
+  "images": [
+    "https://example.com/front.jpg",
+    "https://example.com/side.jpg"
+  ],
+  "price": { "amount": "29800", "currency": "JPY" },
+  "variants": [{ "id": "2001", "title": "Black", "price": "29800" }],
+  "metadata": {
+    "source": "shopify",
+    "templateText": "NEW ARRIVAL"
+  }
+}
+```
+
+### ConvertOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `currency` | `string` | `'JPY'` | Currency code for price |
+| `templateText` | `string` | — | Promotional template text (stored in metadata) |
+| `maxImages` | `number` | `3` | Max images to include (1–3) |
+| `maxTitleLength` | `number` | `80` | Truncate title beyond this length |
+| `maxDescriptionLength` | `number` | `200` | Truncate description beyond this length |
+
 ## How It Works
 
 ```
@@ -59,8 +134,8 @@ docker-compose run --rm app
          │
          ▼
 ┌─────────────────┐     ┌─────────────────┐
-│   Shopify       │     │    Install ID   │
-│   Adapter       │     │   (Anonymous)   │
+│  toGawainJob    │     │    Install ID   │
+│    Input()      │     │   (Anonymous)   │
 └────────┬────────┘     └────────┬────────┘
          │                       │
          └───────────┬───────────┘
@@ -68,10 +143,10 @@ docker-compose run --rm app
                      ▼
            ┌─────────────────┐
            │   Gawain API    │
-           │  Create Job     │
+           │  createJob()    │
            └────────┬────────┘
                     │
-                    ▼ (poll)
+                    ▼ (waitJob)
            ┌─────────────────┐
            │  Preview URL    │
            │  + Upgrade URL  │
@@ -79,11 +154,24 @@ docker-compose run --rm app
 ```
 
 1. **Load product**: Read Shopify product JSON
-2. **Convert format**: Transform to Gawain API format
+2. **Convert format**: `toGawainJobInput(product, opts?)` → `GawainJobInput`
 3. **Get install_id**: Use existing or generate new anonymous ID
-4. **Create job**: Submit to Gawain API for video generation
-5. **Poll status**: Wait for completion
+4. **Create job**: `client.createJob(installId, input)` → `{ jobId }`
+5. **Poll status**: `client.waitJob(jobId)` → `{ previewUrl, ... }`
 6. **Get URLs**: Receive preview URL and Kinosuke upgrade URL
+
+## HTTP Wrapper (Optional)
+
+A lightweight HTTP server is included for integration testing:
+
+```bash
+npm run serve   # Starts on port 3456 (or PORT env var)
+```
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /convert` | Stateless: Shopify product JSON → GawainJobInput |
+| `POST /demo/create-preview` | Creates a Gawain job (requires `GAWAIN_API_KEY` in env) |
 
 ## Commercial Usage
 
@@ -98,20 +186,30 @@ This plugin generates **preview videos** for free. For commercial usage:
 
 ```
 gawain-shopify-plugin/
-├── docs/
-│   ├── architecture.md    # System design
-│   ├── api_contract.md    # API specifications
-│   ├── local_dev.md       # Development guide
-│   └── security.md        # Security considerations
+├── src/
+│   ├── gawain/
+│   │   ├── client.ts          # API client (createJob, getJob, waitJob)
+│   │   └── types.ts           # GawainJobInput, JobStatus, etc.
+│   ├── install/
+│   │   └── install_id.ts      # Install ID management (local demo)
+│   ├── platform/
+│   │   └── shopify/
+│   │       ├── convert.ts     # toGawainJobInput (pure function)
+│   │       ├── types.ts       # ShopifyProduct, ConvertOptions
+│   │       └── index.ts       # Barrel export
+│   ├── util/
+│   │   ├── env.ts             # Environment config
+│   │   └── retry.ts           # Exponential backoff
+│   ├── demo.ts                # CLI demo
+│   ├── server.ts              # Optional HTTP wrapper
+│   └── index.ts               # Public exports
 ├── samples/
 │   └── product.sample.json
-├── src/
-│   ├── gawain/            # API client
-│   ├── install/           # Install ID management
-│   ├── platform/          # Platform adapters
-│   ├── util/              # Utilities
-│   ├── demo.ts            # CLI demo
-│   └── index.ts           # Exports
+├── docs/
+│   ├── architecture.md
+│   ├── api_contract.md
+│   ├── local_dev.md
+│   └── security.md
 ├── Dockerfile
 ├── docker-compose.yml
 ├── Makefile
@@ -147,16 +245,16 @@ npm run build
 
 ## Disclaimer
 
-This is a **reference implementation** for demonstration purposes. It is not an official Shopify app and has not undergone Shopify app review.
+This is a **reference implementation / SDK** for demonstration and integration purposes. It is not an official Shopify app and has not undergone Shopify app review.
 
 For production use:
 - Implement proper Shopify OAuth
-- Add error handling for your use case
+- Handle webhooks and writeback in your own server
 - Subscribe to Kinosuke for commercial video generation
 
 ## License
 
-MIT - see [LICENSE](./LICENSE)
+Licensed under GNU AGPL v3.0. See [LICENSE](./LICENSE).
 
 ## Support
 

@@ -88,3 +88,8 @@ export class GawainApiError extends Error {
     this.name = 'GawainApiError';
   }
 }
+
+/**
+ * Public alias for ProductInput, used as the return type of toGawainJobInput.
+ */
+export type GawainJobInput = ProductInput;
