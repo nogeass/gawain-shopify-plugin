@@ -129,6 +129,47 @@ volumes:
   - ./samples:/app/samples:ro
 ```
 
+## Pre-commit Secret Scanning
+
+To prevent accidental secret commits, set up a pre-commit hook using one of these tools:
+
+### Option A: gitleaks
+
+```bash
+# Install
+brew install gitleaks   # macOS
+# or: https://github.com/gitleaks/gitleaks#installation
+
+# Run manually
+gitleaks detect --source .
+
+# As pre-commit hook (.pre-commit-config.yaml)
+# repos:
+#   - repo: https://github.com/gitleaks/gitleaks
+#     rev: v8.18.0
+#     hooks:
+#       - id: gitleaks
+```
+
+### Option B: git-secrets
+
+```bash
+# Install
+brew install git-secrets
+
+# Configure for this repo
+git secrets --install
+git secrets --register-aws
+# Add Shopify token pattern
+git secrets --add 'shpat_[a-zA-Z0-9]{32,}'
+```
+
+### CI Protection
+
+The GitHub Actions CI workflow includes a `secret-scan` job that checks all tracked files
+for common secret patterns (`shpat_*`, `sk_live_*`, hardcoded Bearer tokens).
+PRs that contain potential secrets will fail the check.
+
 ## Reporting Vulnerabilities
 
 See [SECURITY.md](../SECURITY.md) for vulnerability reporting process.
@@ -141,3 +182,4 @@ See [SECURITY.md](../SECURITY.md) for vulnerability reporting process.
 - [ ] Secrets are not logged
 - [ ] `npm audit` passes
 - [ ] Dependencies are up to date
+- [ ] Pre-commit secret scanning is configured

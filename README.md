@@ -49,6 +49,36 @@ npm run demo -- --product ./samples/product.sample.json
 make demo
 ```
 
+### Demo Output Example
+
+```
+=== Gawain Shopify Plugin Demo ===
+
+Loading configuration...
+Install ID: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+Loading product from: ./samples/product.sample.json
+Product: Premium Wireless Headphones (3 images)
+
+Creating video generation job...
+Creating job for product: 1234567890 (install_id: a1b2***7890)
+Job created: job_abc123
+
+Waiting for job completion...
+  Status: pending
+  Status: processing (25%)
+  Status: processing (75%)
+
+=== Results ===
+Status: completed
+Preview URL: https://api.gawain.example.com/preview/job_abc123.mp4
+
+--- Commercial Usage ---
+To use this video commercially, upgrade at Kinosuke:
+https://kinosuke.example.com/upgrade?install_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890
+
+Demo completed successfully!
+```
+
 ### Docker
 
 ```bash
@@ -173,6 +203,33 @@ npm run serve   # Starts on port 3456 (or PORT env var)
 | `POST /convert` | Stateless: Shopify product JSON → GawainJobInput |
 | `POST /demo/create-preview` | Creates a Gawain job (requires `GAWAIN_API_KEY` in env) |
 
+## Fetching from Shopify Admin API
+
+A reference scaffold for fetching products directly from the Shopify Admin REST API:
+
+```typescript
+import { fetchShopifyProduct, toGawainJobInput } from 'gawain-shopify-plugin';
+
+const product = await fetchShopifyProduct({
+  shop: 'mystore.myshopify.com',
+  accessToken: 'shpat_xxxx',  // caller-provided, never stored by this SDK
+  productId: '1234567890',
+});
+
+const jobInput = toGawainJobInput(product, { currency: 'JPY' });
+```
+
+A full CLI example is available at [`examples/fetch-and-convert.ts`](./examples/fetch-and-convert.ts).
+
+## Free vs Commercial
+
+|  | Free Preview | Commercial (Kinosuke) |
+|---|---|---|
+| Watermark | Yes | No |
+| Resolution | Low | High |
+| API Access | `install_id` only | Full API |
+| Usage Rights | Personal / demo | Commercial |
+
 ## Commercial Usage
 
 This plugin generates **preview videos** for free. For commercial usage:
@@ -181,6 +238,17 @@ This plugin generates **preview videos** for free. For commercial usage:
 2. The output includes a Kinosuke upgrade URL with your `install_id`
 3. Subscribe at Kinosuke to unlock commercial features
 4. Your `install_id` will be linked to your Kinosuke account
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `Error: Missing required env: GAWAIN_API_BASE` | Copy `.env.example` to `.env` and fill in values |
+| `GawainApiError: 401 Unauthorized` | Check `GAWAIN_API_KEY` is valid |
+| `GawainApiError: TIMEOUT` | Increase `GAWAIN_POLL_MAX_ATTEMPTS` in `.env` |
+| `EADDRINUSE: port 3456` | Set a different `PORT` env var, or stop the other process |
+| `Shopify API error: 401` | Check your Shopify access token is valid and has `read_products` scope |
+| `Invalid product format` | Ensure JSON matches the Shopify product structure (needs `id` and `title`) |
 
 ## Project Structure
 
@@ -195,6 +263,7 @@ gawain-shopify-plugin/
 │   ├── platform/
 │   │   └── shopify/
 │   │       ├── convert.ts     # toGawainJobInput (pure function)
+│   │       ├── fetch.ts       # fetchShopifyProduct (Admin API scaffold)
 │   │       ├── types.ts       # ShopifyProduct, ConvertOptions
 │   │       └── index.ts       # Barrel export
 │   ├── util/
@@ -203,6 +272,8 @@ gawain-shopify-plugin/
 │   ├── demo.ts                # CLI demo
 │   ├── server.ts              # Optional HTTP wrapper
 │   └── index.ts               # Public exports
+├── examples/
+│   └── fetch-and-convert.ts   # Shopify → Gawain full pipeline example
 ├── samples/
 │   └── product.sample.json
 ├── docs/
@@ -210,6 +281,8 @@ gawain-shopify-plugin/
 │   ├── api_contract.md
 │   ├── local_dev.md
 │   └── security.md
+├── .github/
+│   └── workflows/ci.yml       # CI (lint, test, build, secret scan)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── Makefile
@@ -223,7 +296,7 @@ Environment variables (see `.env.example`):
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `GAWAIN_API_BASE` | Yes | Gawain API base URL |
-| `GAWAIN_API_KEY` | Yes | API key |
+| `GAWAIN_API_KEY` | No | API key (optional for free preview; required for commercial) |
 | `GAWAIN_APP_ID` | No | Application ID |
 | `KINOSUKE_UPGRADE_URL` | No | Upgrade URL |
 
