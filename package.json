@@ -9,6 +9,7 @@
     "build": "tsc",
     "dev": "tsx watch src/demo.ts",
     "demo": "tsx src/demo.ts",
+    "serve": "tsx src/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src --ext .ts",
@@ -26,7 +27,7 @@
     "e-commerce"
   ],
   "author": "",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "engines": {
     "node": ">=20.0.0"
   },

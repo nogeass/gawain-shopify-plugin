@@ -9,7 +9,7 @@ import {
   type CreateJobRequest,
   type CreateJobResponse,
   type GetJobResponse,
-  type ProductInput,
+  type GawainJobInput,
   GawainApiError,
 } from './types.js';
 
@@ -101,17 +101,17 @@ export class GawainClient {
    */
   async createJob(
     installId: string,
-    product: ProductInput,
+    input: GawainJobInput,
     options?: CreateJobRequest['options']
   ): Promise<CreateJobResponse> {
     const request: CreateJobRequest = {
       installId,
-      product,
+      product: input,
       options,
     };
 
     console.info(
-      `Creating job for product: ${product.id} (install_id: ${maskSecret(installId)})`
+      `Creating job for product: ${input.id} (install_id: ${maskSecret(installId)})`
     );
 
     return withRetry(() =>
@@ -129,17 +129,18 @@ export class GawainClient {
   }
 
   /**
-   * Poll for job completion
+   * Poll for job completion (timeout-based)
    */
-  async waitForCompletion(
+  async waitJob(
     jobId: string,
     options: {
-      pollIntervalMs?: number;
-      maxAttempts?: number;
+      timeoutMs?: number;
+      intervalMs?: number;
       onProgress?: (job: GetJobResponse) => void;
     } = {}
   ): Promise<GetJobResponse> {
-    const { pollIntervalMs = 2000, maxAttempts = 60, onProgress } = options;
+    const { timeoutMs = 120_000, intervalMs = 2000, onProgress } = options;
+    const maxAttempts = Math.ceil(timeoutMs / intervalMs);
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const job = await this.getJob(jobId);
@@ -160,14 +161,32 @@ export class GawainClient {
         );
       }
 
-      // Wait before next poll
-      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
 
     throw new GawainApiError(
       408,
       'TIMEOUT',
-      `Job did not complete within ${maxAttempts * pollIntervalMs}ms`
+      `Job did not complete within ${timeoutMs}ms`
     );
+  }
+
+  /**
+   * @deprecated Use `waitJob` instead.
+   */
+  async waitForCompletion(
+    jobId: string,
+    options: {
+      pollIntervalMs?: number;
+      maxAttempts?: number;
+      onProgress?: (job: GetJobResponse) => void;
+    } = {}
+  ): Promise<GetJobResponse> {
+    const { pollIntervalMs = 2000, maxAttempts = 60, onProgress } = options;
+    return this.waitJob(jobId, {
+      timeoutMs: pollIntervalMs * maxAttempts,
+      intervalMs: pollIntervalMs,
+      onProgress,
+    });
   }
 }

@@ -11,7 +11,7 @@ import { parseArgs } from 'node:util';
 import { GawainClient, createConfigFromEnv } from './gawain/client.js';
 import { loadEnvConfig } from './util/env.js';
 import { getOrCreateInstallId, buildUpgradeUrl } from './install/install_id.js';
-import { convertShopifyProduct, validateShopifyProduct } from './platform/shopify_adapter.js';
+import { toGawainJobInput, validateShopifyProduct } from './platform/shopify/convert.js';
 
 /**
  * Parse command line arguments
@@ -105,22 +105,22 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const productInput = convertShopifyProduct(rawProduct);
-  console.info(`Product: ${productInput.title} (${productInput.images.length} images)`);
+  const jobInput = toGawainJobInput(rawProduct);
+  console.info(`Product: ${jobInput.title} (${jobInput.images.length} images)`);
 
   // Create Gawain client
   const client = new GawainClient(createConfigFromEnv(envConfig));
 
   // Create job
   console.info('\nCreating video generation job...');
-  const createResult = await client.createJob(installId, productInput);
+  const createResult = await client.createJob(installId, jobInput);
   console.info(`Job created: ${createResult.jobId}`);
 
   // Poll for completion
   console.info('\nWaiting for job completion...');
-  const job = await client.waitForCompletion(createResult.jobId, {
-    pollIntervalMs: envConfig.pollIntervalMs,
-    maxAttempts: envConfig.pollMaxAttempts,
+  const job = await client.waitJob(createResult.jobId, {
+    intervalMs: envConfig.pollIntervalMs,
+    timeoutMs: envConfig.pollIntervalMs * envConfig.pollMaxAttempts,
     onProgress: (j) => {
       const progressStr = j.progress !== undefined ? ` (${j.progress}%)` : '';
       console.info(`  Status: ${j.status}${progressStr}`);
