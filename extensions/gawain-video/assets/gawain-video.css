@@ -1,0 +1,70 @@
+.gawain-video-section {
+  margin: 2rem 0;
+}
+
+.gawain-carousel-wrapper {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.gawain-carousel-heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #333;
+  letter-spacing: -0.01em;
+}
+
+.gawain-carousel-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.gawain-carousel-track {
+  display: flex;
+  gap: 1rem;
+  min-width: min-content;
+}
+
+.gawain-video-card {
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: #000;
+}
+
+.gawain-video-player {
+  width: 100%;
+  display: block;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+}
+
+.gawain-video-title {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Scrollbar styling for WebKit browsers */
+.gawain-carousel-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.gawain-carousel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gawain-carousel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+}
+
+.gawain-carousel-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

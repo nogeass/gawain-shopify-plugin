@@ -1,0 +1,13 @@
+{
+  "name": "Gawain AI 動画",
+  "heading": {
+    "label": "見出しテキスト",
+    "default": "プロモーション動画"
+  },
+  "video_width": {
+    "label": "動画カードの幅"
+  },
+  "api_base": {
+    "label": "API URL"
+  }
+}
