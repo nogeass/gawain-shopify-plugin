@@ -3,7 +3,7 @@
 
 # Replace with your actual client_id from Shopify Partner Dashboard
 # (Same value as SHOPIFY_API_KEY in GitHub Secrets)
-client_id = "YOUR_SHOPIFY_API_KEY"
+client_id = "153eca5194af5c95184037005e0c9d29"
 
 name = "Gawain AI"
 application_url = "https://gawain.nogeass.com/shopify/app"
