@@ -22,3 +22,8 @@ redirect_urls = [
 
 [webhooks]
 api_version = "2025-01"
+
+  [webhooks.privacy_compliance]
+  customer_data_request_url = "https://gawain.nogeass.com/api/shopify/webhooks"
+  customer_deletion_url = "https://gawain.nogeass.com/api/shopify/webhooks"
+  shop_deletion_url = "https://gawain.nogeass.com/api/shopify/webhooks"
