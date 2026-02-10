@@ -1,0 +1,57 @@
+{% comment %}
+  Gawain AI — Promotional Video Carousel
+  Displays AI-generated product videos in a horizontal carousel.
+  Requires product context (use on product pages).
+{% endcomment %}
+
+{{ 'gawain-video.css' | asset_url | stylesheet_tag }}
+
+<div
+  id="gawain-videos-{{ block.id }}"
+  class="gawain-video-section"
+  data-api-base="{{ block.settings.api_base }}"
+  data-shop="{{ shop.permanent_domain }}"
+  {% if product %}
+    data-product-id="{{ product.id }}"
+  {% endif %}
+  data-heading="{{ block.settings.heading }}"
+  data-video-width="{{ block.settings.video_width }}"
+>
+  <noscript>
+    <p>{{ block.settings.heading }}</p>
+    <p>JavaScriptを有効にして動画を表示してください。</p>
+  </noscript>
+</div>
+
+<script src="{{ 'gawain-video.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "t:name",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:heading.label",
+      "default": "t:heading.default"
+    },
+    {
+      "type": "range",
+      "id": "video_width",
+      "label": "t:video_width.label",
+      "min": 120,
+      "max": 300,
+      "step": 10,
+      "default": 180,
+      "unit": "px"
+    },
+    {
+      "type": "text",
+      "id": "api_base",
+      "label": "t:api_base.label",
+      "default": "https://gawain.nogeass.com"
+    }
+  ]
+}
+{% endschema %}

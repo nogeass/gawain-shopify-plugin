@@ -1,0 +1,13 @@
+{
+  "name": "Gawain AI Video",
+  "heading": {
+    "label": "Heading text",
+    "default": "Promotional Videos"
+  },
+  "video_width": {
+    "label": "Video card width"
+  },
+  "api_base": {
+    "label": "API URL"
+  }
+}
