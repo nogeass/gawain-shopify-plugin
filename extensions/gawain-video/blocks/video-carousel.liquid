@@ -27,19 +27,19 @@
 
 {% schema %}
 {
-  "name": "t:name",
+  "name": "Gawain AI 動画",
   "target": "section",
   "settings": [
     {
       "type": "text",
       "id": "heading",
-      "label": "t:heading.label",
-      "default": "t:heading.default"
+      "label": "見出しテキスト",
+      "default": "プロモーション動画"
     },
     {
       "type": "range",
       "id": "video_width",
-      "label": "t:video_width.label",
+      "label": "動画カードの幅",
       "min": 120,
       "max": 300,
       "step": 10,
@@ -49,7 +49,7 @@
     {
       "type": "text",
       "id": "api_base",
-      "label": "t:api_base.label",
+      "label": "API URL",
       "default": "https://gawain.nogeass.com"
     }
   ]
