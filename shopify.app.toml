@@ -13,7 +13,12 @@ embedded = true
 automatically_update_urls_on_dev = true
 
 [access_scopes]
-scopes = "read_products,write_products,write_files"
+# read_products — required to fetch product title, description, images, and
+# variants so Gawain can generate promotional videos for those products.
+# write_products and write_files are NOT requested: this app only reads
+# product data and renders videos via the theme extension; no Shopify data
+# is modified by the app.
+scopes = "read_products"
 
 [auth]
 redirect_urls = [
